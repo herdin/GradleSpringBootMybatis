@@ -15,7 +15,7 @@ public class MainApp {
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(MainApp.class);
         application.addInitializers(new VaultApplicationContextInitializer());
-        application.setWebApplicationType(WebApplicationType.NONE);
+//        application.setWebApplicationType(WebApplicationType.NONE);
         application.run(args);
     }
 }
