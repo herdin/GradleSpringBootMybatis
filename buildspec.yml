@@ -4,5 +4,9 @@ phases:
   build:
     commands:
       - echo "hello, aws codebuild"
+      - echo "phases - build"
       - chmod +x ./gradlew
       - ./gradlew build
+  post_build:
+    commands:
+      - echo "$(ls -al ./build/libs/)"
