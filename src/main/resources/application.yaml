@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 4
+
+mybatis:
+   # typehandler - https://mybatis.org/mybatis-3/ko/configuration.html#typeHandlers
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: app/mapper/**/*.xml
+  type-aliases-package: app.dto.model
+
+
+logging:
+  level:
+    root: INFO
+    app: DEBUG

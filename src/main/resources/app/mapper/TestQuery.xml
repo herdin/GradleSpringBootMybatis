@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="app.mapper.TestMapper">
+    <select id="getAllTest" resultType="testModel">
+      select
+        test_id
+        ,test_data
+      from test where 1=1
+    </select>
+
+    <select id="getTest">
+      select
+        test_id
+        ,test_data
+      from test where 1=1
+      and test_id = #{testId}
+    </select>
+
+    <insert id="addTest">
+      insert into test values(#{testId}, #{testData})
+    </insert>
+
+</mapper>

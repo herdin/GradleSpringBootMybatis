@@ -1,0 +1,54 @@
+//  그래들 참고 https://kwonnam.pe.kr/wiki/gradle/java
+plugins {
+//    It allows you to package executable jar or war archives
+//    https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/html/
+    id 'org.springframework.boot' version '2.2.6.RELEASE'
+//    A Gradle plugin that provides Maven-like dependency management and exclusions
+//    https://docs.spring.io/dependency-management-plugin/docs/current/reference/html/
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+}
+
+group 'com.harm.example'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+task localBuild {
+    println 'localBuild'
+    doLast {
+        println "localBuild.doLast -> project.projectDir -> " + project.projectDir
+        copy {
+            println 'localBuild.doLast.copy ' + '$buildDir/resources -> $buildDir/classes/java'
+            from "$buildDir/resources"
+            into "$buildDir/classes/java"
+        }
+    }
+}
+//bootJar 는 assemble 을 하지 않는다. local build 일 경우에만 resources 를 복사하도록 한다.
+assemble.dependsOn "localBuild"
+
+dependencyManagement {
+    dependencies {
+        dependency 'org.springframework.boot:spring-boot-starter-web:2.0.1.RELEASE'
+        dependency 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.0'
+        dependency 'org.springframework.boot:spring-boot-starter-jdbc:2.1.3.RELEASE'
+        dependency 'org.postgresql:postgresql:42.2.5'
+        dependency 'org.springframework.boot:spring-boot-starter-test:2.1.3.RELEASE'
+        dependency 'org.springframework.vault:spring-vault-core:2.2.1.RELEASE'
+    }
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.mybatis.spring.boot:mybatis-spring-boot-starter")
+    compile("org.springframework.boot:spring-boot-starter-jdbc")
+    compile ("org.postgresql:postgresql")
+    compile ('org.springframework.vault:spring-vault-core')
+
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+}
