@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    CURRENT: $(date +"%Y%m%d%H%M%S")
+    CURRENT: date +"%Y%m%d%H%M%S"
 
 phases:
   build:
