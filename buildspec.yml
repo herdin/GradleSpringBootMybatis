@@ -1,20 +1,21 @@
 version: 0.2
 
-env:
-  variables:
-    CURRENT: date +"%Y%m%d%H%M%S"
+#env:
+#  variables:
+#    CURRENT: date +"%Y%m%d%H%M%S"
 
 phases:
   build:
     commands:
-      - echo "build start"
-      - echo "phases - build"
+      - export CURRENT=$(date +"%Y%m%d%H%M%S")
+      - echo "build time tag is $CURRENT"
+      - echo "boot jar build start at $(date +"%Y-%m-%d %H:%M:%S")"
       - chmod +x ./gradlew
-      - echo $CURRENT
-#      - ./gradlew bootJar
+      - ./gradlew bootJar
 #      - ./gradlew build
-#      - echo "$(docker --version)"
-#      - docker build -t msa.example:$CURRENT .
+      - echo "docker images build start at $(date +"%Y-%m-%d %H:%M:%S")"
+      - echo "$(docker --version)"
+      - docker build -t msa.example:$CURRENT .
       - echo "build end"
   post_build:
     commands:
