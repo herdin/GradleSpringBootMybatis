@@ -6,7 +6,8 @@ phases:
       - echo "hello, aws codebuild"
       - echo "phases - build"
       - chmod +x ./gradlew
-      - ./gradlew bootJar
+#      - ./gradlew bootJar
+      - ./gradlew build
       - echo "$(docker --version)"
       - docker build -t msa.example:0.1 .
   post_build:
