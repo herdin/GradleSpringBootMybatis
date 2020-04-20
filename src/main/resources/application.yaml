@@ -10,8 +10,7 @@ mybatis:
   mapper-locations: app/mapper/**/*.xml
   type-aliases-package: app.dto.model
 
-
 logging:
   level:
-    root: INFO
+    root: DEBUG
     app: DEBUG

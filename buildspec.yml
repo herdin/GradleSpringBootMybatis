@@ -8,7 +8,7 @@ phases:
       - chmod +x ./gradlew
       - ./gradlew bootJar
       - echo "$(docker --version)"
-      - docker build -t msa.example:0.1
+      - docker build -t msa.example:0.1 .
   post_build:
     commands:
       - echo "bootJar -> $(ls -al ./build/libs/)"

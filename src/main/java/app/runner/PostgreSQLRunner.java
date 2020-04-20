@@ -9,9 +9,12 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Component
 public class PostgreSQLRunner implements ApplicationRunner {
     private Logger logger = LoggerFactory.getLogger(PostgreSQLRunner.class);
+
     @Autowired
     private TestMapper testMapper;
 
@@ -21,10 +24,13 @@ public class PostgreSQLRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         logger.debug("hello! {}", this.getClass().getSimpleName());
-        logger.debug("username in property -> {}", environment.getProperty("spring.datasource.username"));
 
-//        logger.debug("add test -> {}", testMapper.addTest(new TestModel(10, "herdin")));
+        Arrays.stream(environment.getActiveProfiles()).forEach(profile -> logger.debug("active profile -> {}", profile));
+
+        logger.debug("database url in property -> {}", environment.getProperty("spring.datasource.url"));
+        logger.debug("database username in property -> {}", environment.getProperty("spring.datasource.username"));
+        logger.debug("database password in property -> {}", environment.getProperty("spring.datasource.password"));
+
         logger.debug("get test -> {}", testMapper.getAllTest());
-//        testMapper.addTest(new TestModel(3, "hello"));
     }
 }

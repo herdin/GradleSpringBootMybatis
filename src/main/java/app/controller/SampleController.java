@@ -2,6 +2,7 @@ package app.controller;
 
 import app.dto.request.UserReqeust;
 import app.service.UserService;
+import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class SampleController {
     }
 
     //회원가입
-    @GetMapping("/user/{id}/{name}")
+    @PostMapping("/user/{id}/{name}")
     public ResponseEntity<UserReqeust> addUser(@PathVariable  int id, @PathVariable  String name) {
         logger.debug("this is recv -> {}, {}", id, name);
         //회원 insert
@@ -42,5 +43,11 @@ public class SampleController {
         return "hello, " + userReqeust.toString();
     }
 
+    @GetMapping("/user/{id}")
+    public ResponseEntity<UserReqeust> getUser(@PathVariable int id) {
+        //서비스 에서 디비조회했다 치고
+        UserReqeust userReqeust = new UserReqeust(id, "get user 입니다.");
+        return ResponseEntity.ok(userReqeust);
+    }
 
 }
