@@ -22,3 +22,7 @@ phases:
 #      - echo "bootJar -> $(ls -al ./build/libs/)"
 #      - echo "docker images -> $(docker images)"
       - echo "post build end"
+
+cache:
+  paths:
+    - '/root/.gradle/caches/**/*'
