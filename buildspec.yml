@@ -7,14 +7,18 @@ env:
 phases:
   build:
     commands:
-      - echo "hello, aws codebuild"
+      - echo "build start"
       - echo "phases - build"
       - chmod +x ./gradlew
-      - ./gradlew bootJar
+      - echo $CURRENT
+#      - ./gradlew bootJar
 #      - ./gradlew build
-      - echo "$(docker --version)"
-      - docker build -t msa.example:$CURRENT .
+#      - echo "$(docker --version)"
+#      - docker build -t msa.example:$CURRENT .
+      - echo "build end"
   post_build:
     commands:
-      - echo "bootJar -> $(ls -al ./build/libs/)"
-      - echo "docker images -> $(docker images)"
+      - echo "post build start"
+#      - echo "bootJar -> $(ls -al ./build/libs/)"
+#      - echo "docker images -> $(docker images)"
+      - echo "post build end"
