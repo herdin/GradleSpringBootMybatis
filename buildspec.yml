@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    CURRENT: "$(date +"%Y%m%d%H%M%S")"
+    CURRENT: "$(date +\"%Y%m%d%H%M%S\")"
 
 phases:
   build:
@@ -10,12 +10,11 @@ phases:
       - echo "hello, aws codebuild"
       - echo "phases - build"
       - chmod +x ./gradlew
-#      - ./gradlew bootJar
-      - ./gradlew build
+      - ./gradlew bootJar
+#      - ./gradlew build
       - echo "$(docker --version)"
       - docker build -t msa.example:$CURRENT .
   post_build:
     commands:
       - echo "bootJar -> $(ls -al ./build/libs/)"
       - echo "docker images -> $(docker images)"
-      -
