@@ -1,5 +1,9 @@
 version: 0.2
 
+env:
+  variables:
+    CURRENT: "$(date +"%Y%m%d%H%M%S")"
+
 phases:
   build:
     commands:
@@ -9,8 +13,9 @@ phases:
 #      - ./gradlew bootJar
       - ./gradlew build
       - echo "$(docker --version)"
-      - docker build -t msa.example:0.1 .
+      - docker build -t msa.example:$CURRENT .
   post_build:
     commands:
       - echo "bootJar -> $(ls -al ./build/libs/)"
       - echo "docker images -> $(docker images)"
+      -
