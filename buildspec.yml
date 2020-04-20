@@ -20,8 +20,8 @@ phases:
   post_build:
     commands:
       - echo "post build start"
-#      - echo "bootJar -> $(ls -al ./build/libs/)"
-#      - echo "docker images -> $(docker images)"
+      - echo "bootJar -> $(ls -al ./build/libs/)"
+      - echo "docker images -> $(docker images)"
       - echo "post build end"
 
 cache:
