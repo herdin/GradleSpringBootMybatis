@@ -6,14 +6,15 @@ version: 0.2
 #    CURRENT: date +"%Y%m%d%H%M%S"
 
 phases:
-  build:
-    install:
+  install:
+    commands:
       - echo "install start at $(date +"%Y-%m-%d %H:%M:%S")"
       - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       - unzip awscliv2.zip
       - sudo ./aws/install
       - sudo ln -s /usr/local/aws-cli/v2/2.0.8/bin/aws /usr/bin/aws
       - aws --version
+  build:
     commands:
       - export CURRENT=$(date +"%Y%m%d%H%M%S")
       - echo "build time tag is $CURRENT"
