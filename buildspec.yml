@@ -13,20 +13,19 @@ phases:
       - unzip awscliv2.zip
       - ./aws/install
       - rm -f /usr/bin/aws
-      - ln -s /usr/local/aws-cli/v2/2.0.8/bin/aws /usr/bin/aws
+      - ln -s /usr/local/bin/aws /usr/bin/aws
       - aws --version
   build:
     commands:
       - export CURRENT=$(date +"%Y%m%d%H%M%S")
       - echo "build time tag is $CURRENT"
       - echo "boot jar build start at $(date +"%Y-%m-%d %H:%M:%S")"
-      - chmod +x ./gradlew
-      - ./gradlew bootJar
-#      - ./gradlew build
-      - echo "docker images build start at $(date +"%Y-%m-%d %H:%M:%S")"
-      - echo "$(docker --version)"
-      - docker build -t msa.example:$CURRENT .
-      - echo "build end"
+#      - chmod +x ./gradlew
+#      - ./gradlew bootJar
+#      - echo "docker images build start at $(date +"%Y-%m-%d %H:%M:%S")"
+#      - echo "$(docker --version)"
+#      - docker build -t msa.example:$CURRENT .
+#      - echo "build end"
   post_build:
     commands:
       - echo "post build start"
