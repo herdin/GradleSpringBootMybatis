@@ -3,16 +3,29 @@ version: 0.2
 # 참고 https://jojoldu.tistory.com/282#recentEntries
 #env:
 #  variables:
-#    CURRENT: date +"%Y%m%d%H%M%S"
+#    DIV:
 
 phases:
   install:
     commands:
+      - export DIV="=================================================="
+      - echo $DIV
       - echo "install start at $(date +"%Y-%m-%d %H:%M:%S")"
+      - echo $DIV
+      - echo "install aws cli v2 at $(date +"%Y-%m-%d %H:%M:%S")"
+      - echo $DIV
       - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       - unzip awscliv2.zip
       - ./aws/install
       - echo $(/usr/local/bin/aws --version)
+      - echo $DIV
+      - echo "setting aws config file at $(date +"%Y-%m-%d %H:%M:%S")"
+      - mkdir ~/.aws
+      - echo "[default]" >> ~./aws/credentials
+      - echo "aws_access_key_id = $AWS_KEY_ID" >> ~./aws/credentials
+      - echo "aws_secret_access_key = $AWS_KEY_VALUE" >> ~./aws/credentials
+      - echo "region = ap-northeast-2" >> ~./aws/credentials
+      - cat ~./aws/credentials
   build:
     commands:
       - export CURRENT=$(date +"%Y%m%d%H%M%S")
