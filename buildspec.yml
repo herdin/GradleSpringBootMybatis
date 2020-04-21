@@ -8,9 +8,9 @@ version: 0.2
 phases:
   install:
     commands:
-      - export DIV="==================================================\n"
-      - printf $DIV"INSTALL PHASE START AT $(date +"%Y-%m-%d %H:%M:%S")"
-      - printf $DIV"INSTALL AWS CLI V2 START AT $(date +"%Y-%m-%d %H:%M:%S")"
+      - export DIV="\n==================================================\n"
+      - printf $DIV"INSTALL PHASE START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
+      - printf $DIV"INSTALL AWS CLI V2 START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
       - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       - unzip awscliv2.zip
       - ./aws/install
@@ -30,23 +30,27 @@ phases:
 #      - cat $AWS_CONFIG_PATH/$AWS_CONFIG_CONFIG
   build:
     commands:
-      - export CURRENT_TAG=$(date +"%Y%m%d%H%M%S")
-      - printf $DIV"BUILD PHASE START AT $(date +"%Y-%m-%d %H:%M:%S")"
-      - printf $DIV"BUILD TIMESTAMP IS $CURRENT_TAG"
-      - printf $DIV"BOOT JAR BUILD START AT $(date +"%Y-%m-%d %H:%M:%S")"
-#      - chmod +x ./gradlew
-#      - ./gradlew bootJar
-#      - echo "docker images build start at $(date +"%Y-%m-%d %H:%M:%S")"
-#      - echo "$(docker --version)"
-#      - docker build -t msa.example:$CURRENT_TAG .
-#      - echo "build end"
+      - export DOCKER_IMAGE_NAME=msa.example
+      - export DOCKER_IMAGE_TAG=$(date +"%Y%m%d%H%M%S")
+      - printf $DIV"BUILD PHASE START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
+      - printf $DIV"DOCKER IMAGE TAG IS $DOCKER_IMAGE_TAG"$DIV
+      - printf $DIV"BOOT JAR BUILD START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
+      - chmod +x ./gradlew
+      - ./gradlew bootJar
+      - echo "docker images build start at $(date +"%Y-%m-%d %H:%M:%S")"
+      - echo "$(docker --version)"
+      - docker build -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .
   post_build:
     commands:
       - export MSA_EXAMPLE_DOCKER_REPOSITORY=081582853021.dkr.ecr.ap-northeast-2.amazonaws.com
-      - printf $DIV"POST BUILD PHASE START AT $(date +"%Y-%m-%d %H:%M:%S")"
+      - printf $DIV"POST BUILD PHASE START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
       - /usr/local/bin/aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $MSA_EXAMPLE_DOCKER_REPOSITORY/msa.example
-      - printf $DIV"bootJar -> $(ls -al ./build/libs/)"
-      - printf $DIV"docker images -> $(docker images)"
+      - printf $DIV"bootJar -> $(ls -al ./build/libs/)"$DIV
+      - printf $DIV"docker images -> $(docker images)"$DIV
+      - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_EXAMPLE_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
+      - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_EXAMPLE_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+      - docker push $MSA_EXAMPLE_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+      - docker push $MSA_EXAMPLE_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
 
 cache:
   paths:
