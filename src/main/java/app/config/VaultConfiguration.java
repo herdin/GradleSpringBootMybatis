@@ -78,8 +78,8 @@ public class VaultConfiguration {
         Optional<String> vaultToken = Optional.of(System.getenv(VAULT_ENVIRONMENT_KEY.TOKEN.value()));
         Optional<String> vaultEndpoint = Optional.of(System.getenv(VAULT_ENVIRONMENT_KEY.ENDPOINT.value()));
         Optional<String> vaultPathDatabaseInfo = Optional.of(System.getenv(VAULT_ENVIRONMENT_KEY.PATH_DATABASE_INFO.value()));
-        logger.debug("property {} -> {}", VAULT_ENVIRONMENT_KEY.TOKEN.toString(), vaultEndpoint.get());
-        logger.debug("property {} -> {}", VAULT_ENVIRONMENT_KEY.ENDPOINT.toString(), vaultToken.get());
+        logger.debug("property {} -> {}", VAULT_ENVIRONMENT_KEY.TOKEN.toString(), vaultToken.get());
+        logger.debug("property {} -> {}", VAULT_ENVIRONMENT_KEY.ENDPOINT.toString(), vaultEndpoint.get());
 
         VaultTemplate vaultTemplate = new VaultTemplate(VaultEndpoint.from(new URI(vaultEndpoint.get())), new TokenAuthentication(vaultToken.get()));
         Optional<VaultResponse> vaultResponse = Optional.of(vaultTemplate.read(vaultPathDatabaseInfo.get()));

@@ -32,6 +32,14 @@ public class SampleControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 ;
+    }
 
+    @Test
+    public void retryHello() throws Exception {
+        int userId = 1;
+        mockMvc.perform(MockMvcRequestBuilders.get("/retryHello/vault.anmani.link/8082"))
+                .andDo(print())
+                .andExpect(status().isOk())
+        ;
     }
 }

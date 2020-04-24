@@ -2,13 +2,23 @@ package app.controller;
 
 import app.dto.request.UserReqeust;
 import app.service.UserService;
-import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
+/*
+TODO
+    - RestTemplate 을 사용한 서비스 연동
+    - 더 나은 RestTemplate 사용
+        - https://taetaetae.github.io/2020/03/22/better-rest-template-1-retryable/
+*/
 @RestController
 public class SampleController {
     Logger logger = LoggerFactory.getLogger(SampleController.class);
@@ -16,9 +26,18 @@ public class SampleController {
     @Autowired
     UserService userService;
 
-    @RequestMapping("/hello")
+    @Autowired
+    RestTemplate restTemplate;
+
+    @GetMapping("/hello")
     public String hello() {
         return "hello!";
+    }
+
+    @GetMapping("/retryHello/{urlExceptSchema}/{port}")
+    public String retryHello(@PathVariable String urlExceptSchema, @PathVariable String port) throws URISyntaxException {
+        ResponseEntity<String> responseEntity = restTemplate.exchange(new URI("http://" + urlExceptSchema + ":" + port), HttpMethod.GET, null, String.class);
+        return responseEntity.getBody();
     }
 
     //회원가입
