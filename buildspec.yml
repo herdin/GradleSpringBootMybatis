@@ -42,15 +42,15 @@ phases:
       - docker build -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .
   post_build:
     commands:
-      - export MSA_EXAMPLE_DOCKER_REPOSITORY=081582853021.dkr.ecr.ap-northeast-2.amazonaws.com
+      - export MSA_DOCKER_REPOSITORY=081582853021.dkr.ecr.ap-northeast-2.amazonaws.com
       - printf $DIV"POST BUILD PHASE START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
-      - /usr/local/bin/aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $MSA_EXAMPLE_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME
+      - /usr/local/bin/aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME
       - printf $DIV"bootJar -> $(ls -al ./build/libs/)"$DIV
       - printf $DIV"docker images -> $(docker images)"$DIV
-      - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_EXAMPLE_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
-      - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_EXAMPLE_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-      - docker push $MSA_EXAMPLE_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-      - docker push $MSA_EXAMPLE_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
+      - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
+      - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+      - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+      - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
 
 cache:
   paths:
