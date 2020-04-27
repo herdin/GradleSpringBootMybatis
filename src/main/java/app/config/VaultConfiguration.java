@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.vault.authentication.TokenAuthentication;
 import org.springframework.vault.client.VaultEndpoint;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Configuration
+@Order
 public class VaultConfiguration {
     private Logger logger = LoggerFactory.getLogger(VaultConfiguration.class);
     public enum VAULT_ENVIRONMENT_KEY {
