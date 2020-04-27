@@ -54,7 +54,6 @@ phases:
 #      - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
 #      - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
 
-
 artifacts:
   files:
     - '/msa/*'
