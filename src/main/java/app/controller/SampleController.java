@@ -44,6 +44,7 @@ public class SampleController {
 
     @GetMapping("/remoteHello")
     public String retryHello(String url) throws URISyntaxException {
+        logger.debug("remote -> {}", url);
         ResponseEntity<String> responseEntity = restTemplate.exchange(new URI(url), HttpMethod.GET, null, String.class);
         return responseEntity.getBody();
     }
