@@ -51,15 +51,10 @@ phases:
 #      aws s3 bucket 으로 파일을 올린다.
 #      - aws s3 sync ./build/libs/ s3://msa-codebuild/build/libs
 #      docker registry 에 latest, $DOCKER_IMAGE_TAG 의 태그로 push 한다
-#      - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
-#      - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-#      - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-#      - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
-
-artifacts:
-  files:
-    - '/msa/*'
-  name: codebuild-$(date +%Y-%m-%d)
+      - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
+      - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+      - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+      - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
 
 cache:
   paths:
