@@ -37,6 +37,7 @@ phases:
       - printf $DIV"BOOT JAR BUILD START -> $(date +"%Y-%m-%d %H:%M:%S")"$DIV
       - chmod +x ./gradlew
       - ./gradlew bootJar
+      - printf $DIV"BOOT JAR -> $(ls ./build/libs)"$DIV
       - printf $DIV"DOCKER VERSION -> $(docker --version)"$DIV
       - printf $DIV"DOCKER IMAGE TAG -> $DOCKER_IMAGE_TAG"$DIV
       - printf $DIV"DOCKER IMAGE BUILD START -> $(date +"%Y-%m-%d %H:%M:%S")"$DIV
