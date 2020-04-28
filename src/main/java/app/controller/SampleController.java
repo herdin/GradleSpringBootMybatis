@@ -2,6 +2,7 @@ package app.controller;
 
 import app.dto.request.UserReqeust;
 import app.service.UserService;
+import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 
 /*
 TODO
@@ -29,14 +32,19 @@ public class SampleController {
     @Autowired
     RestTemplate restTemplate;
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "hello!";
+    @ExceptionHandler(UnknownHostException.class)
+    public ResponseEntity<String> exceptionHandler(UnknownHostException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
-    @GetMapping("/retryHello/{urlExceptSchema}/{port}")
-    public String retryHello(@PathVariable String urlExceptSchema, @PathVariable String port) throws URISyntaxException {
-        ResponseEntity<String> responseEntity = restTemplate.exchange(new URI("http://" + urlExceptSchema + ":" + port), HttpMethod.GET, null, String.class);
+    @GetMapping("/hello")
+    public String hello() throws UnknownHostException {
+        return "hello, " + InetAddress.getLocalHost().toString();
+    }
+
+    @GetMapping("/remoteHello")
+    public String retryHello(String requestUrl, String port) throws URISyntaxException {
+        ResponseEntity<String> responseEntity = restTemplate.exchange(new URI(requestUrl + ":" + port), HttpMethod.GET, null, String.class);
         return responseEntity.getBody();
     }
 

@@ -35,9 +35,21 @@ public class SampleControllerTest {
     }
 
     @Test
+    public void hello() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/hello")
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+        ;
+    }
+
+    @Test
     public void retryHello() throws Exception {
         int userId = 1;
-        mockMvc.perform(MockMvcRequestBuilders.get("/retryHello/vault.anmani.link/8082"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/remoteHello")
+                .param("requestUrl", "https://www.naver.never.com")
+                .param("port", "443")
+        )
                 .andDo(print())
                 .andExpect(status().isOk())
         ;
