@@ -33,19 +33,6 @@ phases:
     commands:
       - export DOCKER_IMAGE_NAME=msa.example
       - export DOCKER_IMAGE_TAG=$(date +"%Y%m%d%H%M%S")
-      - printf $DIV"BUILD PHASE START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
-      -
-      - printf $DIV"DOCKER IMAGE TAG IS $DOCKER_IMAGE_TAG"$DIV
-      - printf $DIV"BOOT JAR BUILD START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
-      - chmod +x ./gradlew
-      - ./gradlew bootJar
-      - printf $DIV"DOCKER IMAGE BUILD START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
-      - printf $DIV"DOCKER VERSION IS $(docker --version)"$DIV
-      - docker build -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .
-  build:
-    commands:
-      - export DOCKER_IMAGE_NAME=msa.example
-      - export DOCKER_IMAGE_TAG=$(date +"%Y%m%d%H%M%S")
       - printf $DIV"BUILD PHASE START -> $(date +"%Y-%m-%d %H:%M:%S")"$DIV
       - printf $DIV"BOOT JAR BUILD START -> $(date +"%Y-%m-%d %H:%M:%S")"$DIV
       - chmod +x ./gradlew
