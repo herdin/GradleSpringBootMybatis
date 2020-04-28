@@ -13,8 +13,8 @@ mybatis:
 logging:
   level:
     root: INFO
-    org:
-      springframework:
-        context:
-          annotation: TRACE
+#    org:
+#      springframework:
+#        context:
+#          annotation: TRACE
     app: DEBUG

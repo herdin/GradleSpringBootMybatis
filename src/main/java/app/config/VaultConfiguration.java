@@ -69,10 +69,9 @@ public class VaultConfiguration {
         }
     }
 
-    public VaultConfiguration(Environment environment) throws URISyntaxException {
-        logger.debug("creator");
-//        logger.info("application arguments -> {}, length -> {}", applicationArguments, applicationArguments.getSourceArgs().length);
-//        Arrays.stream(applicationArguments.getSourceArgs()).forEach(argument -> logger.info("application argument -> {}", argument));
+    @PostConstruct
+    public void init() throws URISyntaxException {
+        logger.debug("init");
         System.getenv().entrySet().stream().forEach(entry -> logger.info("system enviroment -> {}, {}", entry.getKey(), entry.getValue()));
 
         //reason why using Optional.of is..
@@ -89,13 +88,7 @@ public class VaultConfiguration {
         setSystemPropertyFromVaultDataByKey(SPRING_DATABASE_PROPERTY_KEY.URL, vaultResponse, VAULT_KEY.URL);
         setSystemPropertyFromVaultDataByKey(SPRING_DATABASE_PROPERTY_KEY.USERNAME, vaultResponse, VAULT_KEY.USERNAME);
         setSystemPropertyFromVaultDataByKey(SPRING_DATABASE_PROPERTY_KEY.PASSWORD, vaultResponse, VAULT_KEY.PASSWORD);
-
     }
-
-//    @PostConstruct
-//    public void init() throws URISyntaxException {
-//        logger.debug("init");
-//    }
 
     private void setSystemPropertyFromVaultDataByKey(SPRING_DATABASE_PROPERTY_KEY springDatabasePropertyKey, Optional<VaultResponse> vaultResponse, VAULT_KEY vaultKey) {
         System.setProperty(springDatabasePropertyKey.value(), String.valueOf(vaultResponse.get().getData().get(vaultKey.value())));
