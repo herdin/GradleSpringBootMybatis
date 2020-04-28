@@ -37,7 +37,7 @@ phases:
       - printf $DIV"DOCKER VERSION IS $(docker --version)"$DIV
       - printf $DIV"DOCKER IMAGE TAG IS $DOCKER_IMAGE_TAG"$DIV
       - printf $DIV"DOCKER IMAGE BUILD START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
-      - docker build -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .
+      - docker build -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG --no-cache .
   post_build:
     commands:
       - export MSA_DOCKER_REPOSITORY=081582853021.dkr.ecr.ap-northeast-2.amazonaws.com
