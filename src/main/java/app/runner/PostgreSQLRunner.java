@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 @Component
-//@DependsOn("vaultConfiguration")
+@DependsOn("vaultConfiguration")
 public class PostgreSQLRunner implements ApplicationRunner {
     private Logger logger = LoggerFactory.getLogger(PostgreSQLRunner.class);
 
