@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Configuration
-@Order
 public class VaultConfiguration {
     private Logger logger = LoggerFactory.getLogger(VaultConfiguration.class);
     public enum VAULT_ENVIRONMENT_KEY {

@@ -1,18 +1,15 @@
 package app.controller;
 
 import app.dto.request.UserReqeust;
+import app.service.RemoteAPIService;
 import app.service.UserService;
-import org.apache.coyote.Response;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 
@@ -24,18 +21,20 @@ TODO
 */
 @RestController
 public class SampleController {
-    Logger logger = LoggerFactory.getLogger(SampleController.class);
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    RestTemplate restTemplate;
-
-    @ExceptionHandler(UnknownHostException.class)
-    public ResponseEntity<String> exceptionHandler(UnknownHostException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+    private Logger logger = LoggerFactory.getLogger(SampleController.class);
+    private ObjectMapper objectMapper;
+    private UserService userService;
+    private RemoteAPIService remoteAPIService;
+    public SampleController(ObjectMapper objectMapper, UserService userService, RemoteAPIService remoteAPIService) {
+        this.objectMapper = objectMapper;
+        this.userService = userService;
+        this.remoteAPIService = remoteAPIService;
     }
+
+//    @ExceptionHandler(UnknownHostException.class)
+//    public ResponseEntity<String> exceptionHandler(UnknownHostException e) {
+//        return ResponseEntity.badRequest().body(e.getMessage());
+//    }
 
     @GetMapping("/hello")
     public String hello() throws UnknownHostException {
@@ -43,11 +42,27 @@ public class SampleController {
     }
 
     @GetMapping("/remoteHello")
-    public String retryHello(String url) throws URISyntaxException {
-        logger.debug("remote -> {}", url);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(new URI(url), HttpMethod.GET, null, String.class);
-        return responseEntity.getBody();
+    public String remoteHello(String url) throws URISyntaxException {
+        logger.debug("remote hello -> {}", url);
+        return remoteAPIService.getStringResult(url);
     }
+
+
+//    @GetMapping("/event")
+//    public Event event() throws UnknownHostException {
+//        Event newEvent = new Event("", 0, InetAddress.getLocalHost().toString(), LocalDateTime.now());
+//        return newEvent;
+//    }
+//
+//    @GetMapping("/remoteEvent")
+//    public Event remoteEvent(@RequestBody Event event) throws URISyntaxException {
+//        logger.debug("remote event -> {}", event);
+//        RequestEntity<Event>.
+//        ResponseEntity<Event> responseEntity = restTemplate.exchange(new URI(event.getUrl()), HttpMethod.GET, null, Event.class);
+//        return responseEntity.getBody();
+//    }
+
+
 
     //회원가입
     @PostMapping("/user/{id}/{name}")

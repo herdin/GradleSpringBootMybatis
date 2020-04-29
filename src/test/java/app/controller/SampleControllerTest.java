@@ -43,14 +43,14 @@ public class SampleControllerTest {
         ;
     }
 
-    @Test
-    public void retryHello() throws Exception {
-        int userId = 1;
-        mockMvc.perform(MockMvcRequestBuilders.get("/remoteHello")
-                .param("url", "https://www.naver.never.com:443")
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-        ;
-    }
+//    @Test
+//    public void retryHello() throws Exception {
+//        int userId = 1;
+//        mockMvc.perform(MockMvcRequestBuilders.get("/remoteHello")
+//                .param("url", "http://localhost:8080/hello")
+//        )
+//                .andDo(print())
+//                .andExpect(status().isOk())
+//        ;
+//    }
 }
