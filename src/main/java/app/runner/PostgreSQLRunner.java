@@ -19,7 +19,7 @@ import java.util.Arrays;
 public class PostgreSQLRunner implements ApplicationRunner {
     private Logger logger = LoggerFactory.getLogger(PostgreSQLRunner.class);
 
-    @Lazy
+//    @Lazy
     @Autowired
     private TestMapper testMapper;
 
