@@ -26,7 +26,7 @@ public class SampleControllerTest {
     MockMvc mockMvc;
 
     @Test
-    public void getUser() throws Exception {
+    public void test_유저가져오기() throws Exception {
         int userId = 1;
         mockMvc.perform(MockMvcRequestBuilders.get("/user/" + userId))
                 .andDo(print())
