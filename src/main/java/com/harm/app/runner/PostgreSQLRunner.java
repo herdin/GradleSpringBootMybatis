@@ -7,18 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
 @Component
-//@DependsOn("vaultConfiguration")
 public class PostgreSQLRunner implements ApplicationRunner {
     private Logger logger = LoggerFactory.getLogger(PostgreSQLRunner.class);
 
-    @Lazy
     @Autowired
     private TestMapper testMapper;
 
