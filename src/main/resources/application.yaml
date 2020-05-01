@@ -10,12 +10,18 @@ mybatis:
    # typehandler - https://mybatis.org/mybatis-3/ko/configuration.html#typeHandlers
   configuration:
     map-underscore-to-camel-case: true
-  mapper-locations: app/mapper/**/*.xml
-  type-aliases-package: app.dto.model
+  mapper-locations: com/harm/app/mapper/**/*.xml
+  type-aliases-package: com.harm.app.dto.model
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
 
 logging:
   level:
-    root: DEBUG
+    root: INFO
     org:
       springframework:
         context:
