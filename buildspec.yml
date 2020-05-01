@@ -11,6 +11,7 @@ phases:
       - export DIV="\n==================================================\n"
       - export DOCKER_IMAGE_NAME=msa.example
       - export DOCKER_IMAGE_TAG=$(date +"%Y%m%d%H%M%S")
+      - export JSON_DATA_TYPE="Content-Type: application/json"
       - printf $DIV"INSTALL PHASE START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
       - printf $DIV"INSTALL AWS CLI V2 START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
 #      slack push
