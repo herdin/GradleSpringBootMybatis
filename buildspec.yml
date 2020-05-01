@@ -1,9 +1,6 @@
 version: 0.2
 
 # 참고 https://jojoldu.tistory.com/282#recentEntries
-#env:
-#  variables:
-#    DIV:
 
 phases:
   install:
@@ -58,7 +55,7 @@ phases:
       - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
       - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
       - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
-      #      slack push
+#      slack push
       - export SLACK_TEXT="build done, docker image"
       - sh ./alarm-slack.sh
 
