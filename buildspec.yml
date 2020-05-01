@@ -9,8 +9,12 @@ phases:
   install:
     commands:
       - export DIV="\n==================================================\n"
+      - export DOCKER_IMAGE_NAME=msa.example
+      - export DOCKER_IMAGE_TAG=$(date +"%Y%m%d%H%M%S")
       - printf $DIV"INSTALL PHASE START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
       - printf $DIV"INSTALL AWS CLI V2 START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
+      #      slack push
+      - curl -X POST --data-urlencode "payload={\"channel\": \"#alarm\", \"text\": \"build start, docker image $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG preparing.\" }" $SLACK_WEBHOOK_URL
       - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       - unzip awscliv2.zip
       - ./aws/install
@@ -31,8 +35,6 @@ phases:
 #      - cat $AWS_CONFIG_PATH/$AWS_CONFIG_CONFIG
   build:
     commands:
-      - export DOCKER_IMAGE_NAME=msa.example
-      - export DOCKER_IMAGE_TAG=$(date +"%Y%m%d%H%M%S")
       - printf $DIV"BUILD PHASE START -> $(date +"%Y-%m-%d %H:%M:%S")"$DIV
       - printf $DIV"BOOT JAR BUILD START -> $(date +"%Y-%m-%d %H:%M:%S")"$DIV
       - chmod +x ./gradlew
@@ -56,7 +58,7 @@ phases:
       - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
       - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
 #      slack push
-      - curl -X POST --data-urlencode "payload={\"channel\": \"#alarm\", \"text\": \"docker images $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG pushed.\" }" $SLACK_WEBHOOK_URL
+      - curl -X POST --data-urlencode "payload={\"channel\": \"#alarm\", \"text\": \"build done, docker image $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG pushed.\" }" $SLACK_WEBHOOK_URL
 
 cache:
   paths:
