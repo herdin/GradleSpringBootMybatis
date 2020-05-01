@@ -55,6 +55,8 @@ phases:
       - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
       - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
       - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
+#      slack push
+      - curl -X POST --data-urlencode "payload={\"channel\": \"#alarm\", \"text\": \"docker images $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG pushed.\" }" $SLACK_WEBHOOK_URL
 
 cache:
   paths:
