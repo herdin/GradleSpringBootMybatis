@@ -14,7 +14,8 @@ phases:
       - printf $DIV"INSTALL PHASE START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
       - printf $DIV"INSTALL AWS CLI V2 START AT $(date +"%Y-%m-%d %H:%M:%S")"$DIV
 #      slack push
-#      - curl -X POST -H "Content-Type: application/json" -d "{'channel': '#alarm', 'text': 'build start, docker image $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG preparing.' }" $SLACK_WEBHOOK_URL
+      - export SLACK_TEXT="build start, docker image"
+      - sh ./alarm-slack.sh
       - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       - unzip awscliv2.zip
       - ./aws/install
@@ -57,8 +58,9 @@ phases:
       - docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
       - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
       - docker push $MSA_DOCKER_REPOSITORY/$DOCKER_IMAGE_NAME:latest
-#      slack push
-#      - curl -X POST -H "Content-Type: application/json" -d "{'channel': '#alarm', 'text': 'build done, docker image $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG pushed.' }" $SLACK_WEBHOOK_URL
+      #      slack push
+      - export SLACK_TEXT="build done, docker image"
+      - sh ./alarm-slack.sh
 
 cache:
   paths:
