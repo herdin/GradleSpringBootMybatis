@@ -21,6 +21,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.js"></script>
 <!--<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>-->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
 <script>
     new Vue({
@@ -35,6 +36,15 @@
             login: function() {
                 console.log(this.userId);
                 console.log(this.userPassword);
+                axios({
+                    method: 'get',
+                    url: 'http://msa.anmani.link:8090',
+                })
+                .then(function(response){
+                    console.log('response -> ');
+                    console.log(response);
+                })
+                ;
             }
         }
     });
