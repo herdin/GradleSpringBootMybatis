@@ -20,45 +20,53 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
     private Logger logger = LoggerFactory.getLogger(VaultEnvironmentPostProcessor.class);
     private final String VAULT_PROPERTY_SOURCE_NAME = "vaultPropertySource";
     private static MapPropertySource vaultProperty = null;
-    public enum VAULT_ENVIRONMENT_KEY {
+    public enum ENVIRONMENT_KEY {
         TOKEN("VAULT_TOKEN"),
         ENDPOINT("VAULT_ENDPOINT"),
         PATH_DATABASE_INFO("VAULT_PATH_DATABASE_INFO"),
+        PATH_ELASTICSEARCH_INFO("VAULT_PATH_ELASTICSEARCH_INFO"),
         ;
         private final String value;
-        VAULT_ENVIRONMENT_KEY(String value) {
+        ENVIRONMENT_KEY(String value) {
             this.value = value;
         }
         public String value() {
             return value;
         }
     }
-    public enum VAULT_DATABASE_KEY {
-        URL("url"),
-        USERNAME("username"),
-        PASSWORD("password"),
+    public enum VAULT_KEY {
+        DATABASE_URL("url"),
+        DATABASE_USERNAME("username"),
+        DATABASE_PASSWORD("password"),
+        ELASTICSEARCH_URL("url"),
+        ELASTICSEARCH_PORT("port"),
+        ELASTICSEARCH_SCHEME("scheme"),
         ;
         private final String value;
-        VAULT_DATABASE_KEY(String value) {
+        VAULT_KEY(String value) {
             this.value = value;
         }
         public String value() {
             return value;
         }
     }
-    public enum SPRING_DATABASE_PROPERTY_KEY {
-        URL("spring.datasource.url"),
-        USERNAME("spring.datasource.username"),
-        PASSWORD("spring.datasource.password"),
+    public enum PROPERTY_KEY {
+        DATABASE_URL("spring.datasource.url"),
+        DATABASE_USERNAME("spring.datasource.username"),
+        DATABASE_PASSWORD("spring.datasource.password"),
+        ELASTICSEARCH_URL("elasticsearch.url"),
+        ELASTICSEARCH_PORT("elasticsearch.port"),
+        ELASTICSEARCH_SCHEME("elasticsearch.scheme"),
         ;
         private final String value;
-        SPRING_DATABASE_PROPERTY_KEY(String value) {
+        PROPERTY_KEY(String value) {
             this.value = value;
         }
         public String value() {
             return value;
         }
     }
+
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         if(environment.getPropertySources().get(VAULT_PROPERTY_SOURCE_NAME) == null) {
@@ -88,16 +96,17 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
         });
         //reason why using Optional.of is..
         //if application arguments associated with vault are not exist, NullPointerException occur.
-        Optional<String> vaultToken = Optional.of(System.getenv(VAULT_ENVIRONMENT_KEY.TOKEN.value()));
-        Optional<String> vaultEndpoint = Optional.of(System.getenv(VAULT_ENVIRONMENT_KEY.ENDPOINT.value()));
-        Optional<String> vaultPathDatabaseInfo = Optional.of(System.getenv(VAULT_ENVIRONMENT_KEY.PATH_DATABASE_INFO.value()));
+        Optional<String> vaultToken = Optional.of(System.getenv(ENVIRONMENT_KEY.TOKEN.value()));
+        Optional<String> vaultEndpoint = Optional.of(System.getenv(ENVIRONMENT_KEY.ENDPOINT.value()));
+        Optional<String> vaultPathDatabaseInfo = Optional.of(System.getenv(ENVIRONMENT_KEY.PATH_DATABASE_INFO.value()));
+        Optional<String> vaultPathElasticsearchInfo = Optional.of(System.getenv(ENVIRONMENT_KEY.PATH_ELASTICSEARCH_INFO.value()));
 
         if(logger.isDebugEnabled()) {
-            logger.debug("property {} -> {}", VAULT_ENVIRONMENT_KEY.TOKEN.toString(), vaultToken.get());
-            logger.debug("property {} -> {}", VAULT_ENVIRONMENT_KEY.ENDPOINT.toString(), vaultEndpoint.get());
+            logger.debug("property {} -> {}", ENVIRONMENT_KEY.TOKEN.toString(), vaultToken.get());
+            logger.debug("property {} -> {}", ENVIRONMENT_KEY.ENDPOINT.toString(), vaultEndpoint.get());
         } else {
-            System.out.println("property " + VAULT_ENVIRONMENT_KEY.TOKEN.toString() + " -> " + vaultToken.get());
-            System.out.println("property " + VAULT_ENVIRONMENT_KEY.ENDPOINT.toString() + " -> " + vaultEndpoint.get());
+            System.out.println("property " + ENVIRONMENT_KEY.TOKEN.toString() + " -> " + vaultToken.get());
+            System.out.println("property " + ENVIRONMENT_KEY.ENDPOINT.toString() + " -> " + vaultEndpoint.get());
         }
 
         VaultTemplate vaultTemplate = null;
@@ -106,20 +115,29 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("vault endpoint is not valid -> " + vaultEndpoint.get());
         }
-        Optional<VaultResponse> vaultResponse = Optional.of(vaultTemplate.read(vaultPathDatabaseInfo.get()));
+        Optional<VaultResponse> vaultDatabaseInfoResponse = Optional.of(vaultTemplate.read(vaultPathDatabaseInfo.get()));
+        Optional<VaultResponse> vaultElasticsearchInfoResponse = Optional.of(vaultTemplate.read(vaultPathElasticsearchInfo.get()));
+
         if(logger.isDebugEnabled()) {
-            logger.debug("vault read -> {}", vaultResponse.get().getData());
+            logger.debug("vault database info read -> {}", vaultDatabaseInfoResponse.get().getData());
+            logger.debug("vault elasticsearch info read -> {}", vaultElasticsearchInfoResponse.get().getData());
+
         } else {
-            System.out.println("vault read -> " + vaultResponse.get().getData());
+            System.out.println("vault database info read -> " + vaultDatabaseInfoResponse.get().getData());
+            System.out.println("vault elasticsearch info read -> " + vaultElasticsearchInfoResponse.get().getData());
         }
 
         HashMap<String, Object> mappedVaultProperty = new HashMap<>();
-        setVaultProperty(mappedVaultProperty, SPRING_DATABASE_PROPERTY_KEY.URL, vaultResponse, VAULT_DATABASE_KEY.URL);
-        setVaultProperty(mappedVaultProperty, SPRING_DATABASE_PROPERTY_KEY.USERNAME, vaultResponse, VAULT_DATABASE_KEY.USERNAME);
-        setVaultProperty(mappedVaultProperty, SPRING_DATABASE_PROPERTY_KEY.PASSWORD, vaultResponse, VAULT_DATABASE_KEY.PASSWORD);
+        setVaultProperty(mappedVaultProperty, PROPERTY_KEY.DATABASE_URL, vaultDatabaseInfoResponse, VAULT_KEY.DATABASE_URL);
+        setVaultProperty(mappedVaultProperty, PROPERTY_KEY.DATABASE_USERNAME, vaultDatabaseInfoResponse, VAULT_KEY.DATABASE_USERNAME);
+        setVaultProperty(mappedVaultProperty, PROPERTY_KEY.DATABASE_PASSWORD, vaultDatabaseInfoResponse, VAULT_KEY.DATABASE_PASSWORD);
+        setVaultProperty(mappedVaultProperty, PROPERTY_KEY.ELASTICSEARCH_URL, vaultElasticsearchInfoResponse, VAULT_KEY.ELASTICSEARCH_URL);
+        setVaultProperty(mappedVaultProperty, PROPERTY_KEY.ELASTICSEARCH_PORT, vaultElasticsearchInfoResponse, VAULT_KEY.ELASTICSEARCH_PORT);
+        setVaultProperty(mappedVaultProperty, PROPERTY_KEY.ELASTICSEARCH_SCHEME, vaultElasticsearchInfoResponse, VAULT_KEY.ELASTICSEARCH_SCHEME);
+
         vaultProperty = new MapPropertySource(VAULT_PROPERTY_SOURCE_NAME, mappedVaultProperty);
     }
-    private void setVaultProperty(HashMap<String, Object> vaultProperty, SPRING_DATABASE_PROPERTY_KEY springDatabasePropertyKey, Optional<VaultResponse> vaultResponse, VAULT_DATABASE_KEY vaultKey) {
-        vaultProperty.put(springDatabasePropertyKey.value(), String.valueOf(vaultResponse.get().getData().get(vaultKey.value())));
+    private void setVaultProperty(HashMap<String, Object> vaultProperty, PROPERTY_KEY propertyKey, Optional<VaultResponse> vaultResponse, VAULT_KEY vaultKey) {
+        vaultProperty.put(propertyKey.value(), String.valueOf(vaultResponse.get().getData().get(vaultKey.value())));
     }
 }

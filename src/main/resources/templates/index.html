@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+<div id="app">
+    <div class="container">
+        <div class="col-md-6 offset-md-3">
+            <h1 class="text-center mb-4">Welcome to MSA Prototype</h1>
+            <input type="text" class="form-control mb-4" v-model="userId" @keyup.enter="addNewTodo"/>
+            <input type="password" class="form-control mb-4" v-model="userPassword" @keyup.enter="addNewTodo"/>
+            <button type="button" class="btn btn-primary" @click="login">login</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>-->
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            userId: '',
+            userPassword: '',
+        },
+        computed: {
+        },
+        methods: {
+            login: function() {
+                console.log(this.userId);
+                console.log(this.userPassword);
+            }
+        }
+    });
+</script>
+</body>
+</html>

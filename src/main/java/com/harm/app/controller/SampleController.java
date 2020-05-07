@@ -1,17 +1,37 @@
 package com.harm.app.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.harm.app.dto.model.TransModel;
 import com.harm.app.dto.request.UserReqeust;
 import com.harm.app.service.RemoteAPIService;
 import com.harm.app.service.UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.Fuzziness;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /*
 TODO
@@ -26,10 +46,17 @@ public class SampleController {
     private ObjectMapper objectMapper;
     private UserService userService;
     private RemoteAPIService remoteAPIService;
-    public SampleController(ObjectMapper objectMapper, UserService userService, RemoteAPIService remoteAPIService) {
+    private RestHighLevelClient restHighLevelClient;
+    public SampleController(
+            ObjectMapper objectMapper
+            , UserService userService
+            , RemoteAPIService remoteAPIService
+            , RestHighLevelClient restHighLevelClient
+    ) {
         this.objectMapper = objectMapper;
         this.userService = userService;
         this.remoteAPIService = remoteAPIService;
+        this.restHighLevelClient = restHighLevelClient;
     }
 
 //    @ExceptionHandler(UnknownHostException.class)
@@ -48,6 +75,129 @@ public class SampleController {
         return remoteAPIService.getStringResult(url);
     }
 
+    @GetMapping("/estest")
+    public String estest() throws IOException {
+        estest_04();
+        estest_03();
+        estest_02();
+        return "estest";
+    }
+
+    public RestHighLevelClient createConnection() {
+//        return new RestHighLevelClient(
+//                RestClient.builder(
+//                        new HttpHost("ec2-52-78-204-9.ap-northeast-2.compute.amazonaws.com",9200,"http")
+//                )
+//        );
+        return restHighLevelClient;
+    }
+
+
+    /**
+     * https://www.elastic.co/guide/en/elasticsearch/client/java-rest/5.6/java-rest-high-search.html
+     */
+    private void estest_04() throws IOException {
+        logger.debug("estest_04 init");
+        SearchRequest searchRequest = new SearchRequest("sjb");
+        /**
+         *      * @deprecated Types are in the process of being removed. Instead of using a type, prefer to
+         *      * filter on a field on the document.
+         */
+        searchRequest.types("trans");
+
+        QueryBuilder queryBuilder = QueryBuilders.matchQuery("card_no", "1010010030654487")
+                .lenient(false)
+                .fuzziness(Fuzziness.ZERO) //연관도라고한다..
+                .prefixLength(3)
+                .maxExpansions(10);
+
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+//        sourceBuilder.query(QueryBuilders.termQuery("card_no", "1010010030654487"));
+        sourceBuilder.query(queryBuilder);
+        sourceBuilder.from(0);
+        sourceBuilder.size(5);
+        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+
+        searchRequest.source(sourceBuilder);
+
+        SearchResponse searchResponse = createConnection().search(searchRequest, RequestOptions.DEFAULT);
+
+        logger.debug("status {}, took {} terminatedEarly {}, timeout {}", searchResponse.status(), searchResponse.getTook(), searchResponse.isTerminatedEarly(), searchResponse.isTimedOut());
+
+        SearchHits hits = searchResponse.getHits();
+        ArrayList<TransModel> transModels = new ArrayList<>();
+        for(SearchHit hit : hits) {
+            String hitSource = hit.getSourceAsString();
+            TransModel transModel = objectMapper.readValue(hitSource, TransModel.class);
+            transModels.add(transModel);
+            logger.debug("hit source -> {}", hitSource);
+            logger.debug("hit -> {}", transModel);
+        }
+
+        logger.debug("estest_04 -> {}", searchResponse);
+    }
+    /**
+     * https://coding-start.tistory.com/172
+     */
+    private void estest_03() throws IOException {
+        logger.debug("estest_03 init");
+        SearchRequest searchRequest = new SearchRequest("sjb");
+        QueryBuilder queryBuilder = QueryBuilders.matchQuery("card_no", "1010010030654487");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(queryBuilder);
+        searchRequest.source(sourceBuilder);
+        SearchResponse searchResponse = createConnection().search(searchRequest, RequestOptions.DEFAULT);
+        logger.debug("estest-03 -> {}", searchResponse);
+    }
+    private void estest_02() throws IOException {
+        logger.debug("estest_02 init");
+        String aliasName = "sjb";
+        String typeName = "trans";
+        String fieldName = "card_no";
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.matchQuery(fieldName, "1010010030654487"));
+        searchSourceBuilder.from(0);
+        searchSourceBuilder.size(5);
+//        searchSourceBuilder.sort(new FieldSortBuilder(fieldName).order(SortOrder.DESC));
+
+        SearchRequest request = new SearchRequest(aliasName);
+        request.types(typeName);
+        request.source(searchSourceBuilder);
+
+
+        SearchResponse response = null;
+        SearchHits searchHits = null;
+//        List<Answer> resultMap = new ArrayList<>();
+
+        try(RestHighLevelClient restHighLevelClient = createConnection()) {
+
+            response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
+            searchHits = response.getHits();
+            for( SearchHit hit : searchHits) {
+                Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+//                Answer a = new Answer();
+//                a.setQuestion(sourceAsMap.get("question")+"");
+//                a.setAnswer(sourceAsMap.get("answer")+"");
+//                resultMap.add(a);
+            }
+
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        logger.debug("estest-02 -> {}", response);
+    }
+
+    /**
+     * https://nevercaution.github.io/elasticsearch-rest-client/
+     */
+    private void estest_01() throws IOException {
+        RestHighLevelClient client = null;
+        CreateIndexRequest request = new CreateIndexRequest("sjb");
+//        request.settings(seriesSettings(), XContentType.JSON);
+//        request.mapping("type_name", seriesIndex(), XContentType.JSON);
+        client.indices().create(request, RequestOptions.DEFAULT);
+    }
 
 //    @GetMapping("/event")
 //    public Event event() throws UnknownHostException {

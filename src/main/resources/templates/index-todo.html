@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+<div id="app">
+    <div class="container">
+        <div class="col-md-6 offset-md-3">
+            <h1 class="text-center mb-4">Todo application</h1>
+            <input type="text" class="form-control mb-4" v-model="userInput" @keyup.enter="addNewTodo"/>
+            {{ userInput }}
+            <div class="list-group mb-4">
+                <template v-for="todo in getTodoList">
+                    <button class="list-group-item text-left" @click="setDone(todo)">{{ todo.label }}</button>
+                </template>
+            </div>
+            <div class="text-left">
+                <button type="button" class="btn btn-sm" @click="changeCurrentStatus(TODO)">할일</button>
+                <button type="button" class="btn btn-sm" @click="changeCurrentStatus(DONE)">완료</button>
+                <button type="button" class="btn btn-sm" @click="changeCurrentStatus(ALL)">전체</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>-->
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            userInput: '',
+            todoList: [],
+            currentStatus: 0,
+            ALL: 0,
+            TODO: 1,
+            DONE: 2,
+        },
+        computed: {
+            getTodoList: function() {
+                return this.todoList.filter(todo => this.currentStatus === this.ALL || this.currentStatus === todo.status)
+            }
+        },
+        methods: {
+            addNewTodo: function() {
+                this.todoList.push({
+                    label: this.userInput,
+                    status: 1,
+                });
+                console.dir(this.todoList);
+                this.userInput = '';
+            },
+            setDone: function (todo) {
+                if(todo.status === 1) {
+                    todo.status = 2;
+                }
+            },
+            changeCurrentStatus(status) {
+                this.currentStatus = status;
+            },
+        }
+    });
+</script>
+</body>
+</html>
