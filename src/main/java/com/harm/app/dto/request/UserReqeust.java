@@ -1,35 +1,40 @@
 package com.harm.app.dto.request;
 
+import javax.validation.constraints.NotBlank;
+
 public class UserReqeust {
-    private int id;
-    private String name;
-    public UserReqeust(){}
-    public UserReqeust(int id, String name) {
-        this.id = id;
-        this.name = name;
+    @NotBlank
+    private String userId;
+    @NotBlank
+    private String userPassword;
+
+    public UserReqeust() {}
+    public UserReqeust(String userId, String userPassword) {
+        this.userId = userId;
+        this.userPassword = userPassword;
     }
 
-    public int getId() {
-        return id;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public String getName() {
-        return name;
+    public String getUserPassword() {
+        return userPassword;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
     }
 
     @Override
     public String toString() {
         return "UserReqeust{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "userId='" + userId + '\'' +
+                ", userPassword='" + userPassword + '\'' +
                 '}';
     }
 }

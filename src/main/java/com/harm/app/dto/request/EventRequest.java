@@ -8,6 +8,7 @@ public class EventRequest {
     private String name;
     private LocalDateTime regTime;
 
+    public EventRequest() {}
     public EventRequest(String url, Integer id, String name, LocalDateTime regTime) {
         this.url = url;
         this.id = id;

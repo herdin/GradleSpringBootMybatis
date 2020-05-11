@@ -17,11 +17,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: hystrix.stream
+        include: 'hystrix.stream'
 
 logging:
   level:
-    root: DEBUG
+    root: INFO
     com: DEBUG
 #    org:
 #      springframework:
