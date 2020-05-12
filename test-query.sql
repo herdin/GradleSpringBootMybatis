@@ -17,7 +17,7 @@ and card_no = '1010000100010001'
 
 ;
 select * from tb_card where 1=1
-and card_no = '1010010131588568'
+--and card_no = '1010010131588568'
 and card_sta_cd = '00'
 ;
 select * from tb_memcard
