@@ -8,6 +8,15 @@ import com.harm.app.dto.request.TransactionRequest;
 import com.harm.app.dto.request.UserReqeust;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -15,10 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,30 +37,19 @@ import java.util.List;
 public class RemoteAPIService {
     private Logger logger = LoggerFactory.getLogger(RemoteAPIService.class);
     private RestTemplate restTemplate;
+    private RestHighLevelClient restHighLevelClient;
     private ObjectMapper objectMapper;
 
     private enum SERVICE_ENDPOINT {
-        LOGIN(HttpMethod.POST, "http://msa.member.anmani.link:8090/member/login/"),
-        GET_USER_CARD(HttpMethod.GET, "http://msa.card.anmani.link:8090/card/user/"),
-        PUT_USER_CARD(HttpMethod.PUT, "http://msa.card.anmani.link:8090/card")
+        //GET     http://msa.card.anmani.link:8090/card/member/{memberId}
+        //PUT     http://msa.card.anmani.link:8090/card/{cardNo}/member/{memberId}
+        //DELETE  http://msa.card.anmani.link:8090/card/{cardNo}/member/{memberId}
 
-        ;
-        HttpMethod httpMethod;
-        String url;
-        SERVICE_ENDPOINT(HttpMethod httpMethod, String url) {
-            this.httpMethod = httpMethod;
-            this.url = url;
-        }
-        public HttpMethod httpMethod() {
-            return httpMethod;
-        }
-        public String url() {
-            return url;
-        }
     }
 
-    public RemoteAPIService(ObjectMapper objectMapper) {
+    public RemoteAPIService(RestHighLevelClient restHighLevelClient, ObjectMapper objectMapper) {
         this.restTemplate = new RestTemplate();
+        this.restHighLevelClient = restHighLevelClient;
         this.objectMapper = objectMapper;
     }
 
@@ -93,10 +93,18 @@ public class RemoteAPIService {
                     @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "30"),
             })
     public boolean login(UserReqeust userReqeust) {
-        logger.debug("remote api call for login to [{}] user [{}]", SERVICE_ENDPOINT.LOGIN.url(), userReqeust.getUserId());
+        final String memberIdSlot = "#memberId#";
+        final String memberPasswordSlot = "#memberPassword#";
+        String requestUrlStr = "http://msa.member.anmani.link:8090/member/login/" + memberIdSlot + "/" + memberPasswordSlot;
+
+        logger.debug("remote api call for login to [{}] user [{}]", requestUrlStr, userReqeust.getUserId());
         boolean isLogined = false;
         try {
-            ResponseEntity responseEntity = restTemplate.exchange(SERVICE_ENDPOINT.LOGIN.url() + userReqeust.getUserId() +"/" + bytesToHex(sha256(userReqeust.getUserPassword())), SERVICE_ENDPOINT.LOGIN.httpMethod(), null, String.class);
+
+            requestUrlStr = requestUrlStr.replaceAll(memberIdSlot, userReqeust.getUserId());
+            requestUrlStr = requestUrlStr.replaceAll(memberPasswordSlot, bytesToHex(sha256(userReqeust.getUserPassword())));
+
+            ResponseEntity responseEntity = restTemplate.exchange(requestUrlStr, HttpMethod.POST, null, String.class);
             logger.debug("remote api call for login status {} result {}", responseEntity.getStatusCode(), responseEntity.getBody());
             if(HttpStatus.OK.equals(responseEntity.getStatusCode())) {
                 isLogined = true;
@@ -140,12 +148,17 @@ public class RemoteAPIService {
                     @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "2000"),
                     @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "30"),
             })
-    public List<CardRequest> getUserCard(String userId) {
-        logger.debug("remote api call for get user card to [{}] user [{}]", SERVICE_ENDPOINT.GET_USER_CARD.url(), userId);
+    public List<CardRequest> getUserCard(String memberId) {
+        final String memberIdSlot = "#memberId#";
+        String requestUrlStr = "http://msa.card.anmani.link:8090/card/member/" + memberId;
+
+        logger.debug("remote api call for get user card to [{}] user [{}]", requestUrlStr, memberId);
         List<CardRequest> userCardList = null;
         try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(SERVICE_ENDPOINT.GET_USER_CARD.url() + userId, SERVICE_ENDPOINT.GET_USER_CARD.httpMethod(), null, String.class);
 
+            requestUrlStr = requestUrlStr.replaceAll(memberIdSlot, memberId);
+
+            ResponseEntity<String> responseEntity = restTemplate.exchange(requestUrlStr, HttpMethod.GET, null, String.class);
             logger.debug("remote api call for get user card status {} result {}", responseEntity.getStatusCode(), responseEntity.getBody());
 
             if(HttpStatus.OK.equals(responseEntity.getStatusCode())) {
@@ -165,35 +178,45 @@ public class RemoteAPIService {
     }
 
     @HystrixCommand(
-            fallbackMethod = "putUserCardFallback",
+            fallbackMethod = "modUserCardFallback",
             commandProperties = {
                     @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "1000"),
                     @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2"),
                     @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "2000"),
                     @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "30"),
             })
-    public boolean putUserCard(CardRequest cardRequest) {
-        logger.debug("remote api call for put user card to [{}] user [{}]", SERVICE_ENDPOINT.GET_USER_CARD.url(), cardRequest.getUserId());
-        boolean isPutOk = false;
+    public boolean modUserCard(CardRequest cardRequest, boolean isPut) {
+        final String cardNoSlot = "#cardNo#";
+        final String memberIdSlot = "#memberId#";
+        String requestUrlStr = "http://msa.card.anmani.link:8090/card/" + cardNoSlot + "/member/" + memberIdSlot;
+
+        logger.debug("remote api call for {} user card to [{}] user [{}]", (isPut)? "put":"delete", requestUrlStr, cardRequest.getUserId());
+
+        boolean isModOk = false;
         try {
-            RequestEntity<CardRequest> requestEntity = RequestEntity
-                    .put(new URI(SERVICE_ENDPOINT.PUT_USER_CARD.url()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(cardRequest)
-                    ;
-            ResponseEntity<String> responseEntity = restTemplate.exchange(requestEntity, String.class);
-            logger.debug("remote api call for put user card status {} result {}", responseEntity.getStatusCode(), responseEntity.getBody());
+//            RequestEntity<CardRequest> requestEntity = RequestEntity
+//                    .put(new URI(url))
+//                    .contentType(MediaType.APPLICATION_JSON)
+//                    .body(cardRequest)
+//                    ;
+//            ResponseEntity<String> responseEntity = restTemplate.exchange(requestEntity, String.class);
+
+            requestUrlStr = requestUrlStr.replaceAll(cardNoSlot, cardRequest.getCardNo());
+            requestUrlStr = requestUrlStr.replaceAll(memberIdSlot, cardRequest.getUserId());
+
+            ResponseEntity<String> responseEntity = restTemplate.exchange(requestUrlStr, (isPut)? HttpMethod.PUT:HttpMethod.DELETE,null, String.class);
+            logger.debug("remote api call for {} user card status {} result {}", (isPut)? "put":"delete", responseEntity.getStatusCode(), responseEntity.getBody());
 
             if(HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-                isPutOk = true;
+                isModOk = true;
             }
-        } catch (URISyntaxException e) {
+        } catch (RestClientException e) {
             logger.error(e.getMessage());
         }
-        return isPutOk;
+        return isModOk;
     }
 
-    public boolean putUserCardFallback(CardRequest cardRequest) {
+    public boolean modUserCardFallback(CardRequest cardRequest, boolean isPut) {
         logger.debug("fallback called.");
         return false;
     }
@@ -207,7 +230,39 @@ public class RemoteAPIService {
                     @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "30"),
             })
     public List<TransactionRequest> getCardTransaction(String cardNo) {
-        return null;
+        ArrayList<TransactionRequest> transModels = new ArrayList<>();
+
+        SearchRequest searchRequest = new SearchRequest("sjb");
+        QueryBuilder queryBuilder = QueryBuilders.matchQuery("card_no", cardNo  );
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(queryBuilder);
+        searchRequest.source(sourceBuilder);
+        SearchResponse searchResponse = null;
+        try {
+            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            return transModels;
+        }
+
+        logger.debug("status {}, took {} terminatedEarly {}, timeout {}", searchResponse.status(), searchResponse.getTook(), searchResponse.isTerminatedEarly(), searchResponse.isTimedOut());
+
+        SearchHits hits = searchResponse.getHits();
+        for(SearchHit hit : hits) {
+            String hitSource = hit.getSourceAsString();
+            TransactionRequest transModel = null;
+            try {
+                transModel = objectMapper.readValue(hitSource, TransactionRequest.class);
+            } catch (JsonProcessingException e) {
+                logger.error(e.getMessage());
+                return transModels;
+            }
+            transModels.add(transModel);
+            logger.debug("hit source -> {}", hitSource);
+            logger.debug("hit -> {}", transModel);
+        }
+
+        return transModels;
     }
     public List<TransactionRequest> getCardTransactionFallback(String cardNo) {
         logger.debug("fallback called.");

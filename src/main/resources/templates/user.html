@@ -20,8 +20,7 @@
                             <input type="text" class="form-control" :value="card.cardNo"/>
                         </div>
                         <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <button type="button" class="btn btn-warning" @click="gotoTransaction(card.cardNo)">transaction</button>
-                            <button type="button" class="btn btn-primary" @click="modifyCardNo(card.cardNo)">modify</button>
+                            <button type="button" class="btn btn-warning" @click="getTransaction(card.cardNo)">transaction</button>
                             <button type="button" class="btn btn-danger" @click="deleteCardNo(card.cardNo)">delete</button>
                         </div>
                     </div>
@@ -30,17 +29,25 @@
             <table class="mx-auto pure-table">
                 <thead>
                     <tr>
-                        <td>11</td>
-                        <td>22</td>
-                        <td>33</td>
+                        <td>card no</td>
+                        <td>tr dtime</td>
+                        <td>vehc id</td>
+                        <td>route_id</td>
+                        <td>tr_amt</td>
+                        <td>tr_type</td>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td></td>
-                        <td>데이터 없음</td>
-                        <td></td>
-                    </tr>
+                    <template v-for="trans in transList">
+                        <tr>
+                            <td>{{ trans.card_no }}</td>
+                            <td>{{ trans.tr_dtime }}</td>
+                            <td>{{ trans.vehc_id }}</td>
+                            <td>{{ trans.route_id }}</td>
+                            <td>{{ trans.tr_amt }}</td>
+                            <td>{{ trans.tr_type }}</td>
+                        </tr>
+                    </template>
                 </tbody>
             </table>
         </div>
@@ -60,32 +67,6 @@
         data: {
             newCardNo: '',
             cardList: [],
-            // [
-            //     {
-            //         "userId": "s.jo0701",
-            //         "cardNo": "1010000100010001",
-            //         "cardStaNm": "Active",
-            //         "cardPrdId": "001",
-            //         "cardPrdNm": "Tmoney",
-            //         "cardPrdCrgNm": "Tmoney"
-            //     },
-            //     {
-            //         "userId": "s.jo0701",
-            //         "cardNo": "1010000100010004",
-            //         "cardStaNm": "Active",
-            //         "cardPrdId": "003",
-            //         "cardPrdNm": "Mobile Tmoney",
-            //         "cardPrdCrgNm": "Mobile Tmoney"
-            //     },
-            //     {
-            //         "userId": "s.jo0701",
-            //         "cardNo": "1010000100010002",
-            //         "cardStaNm": "Active",
-            //         "cardPrdId": "002",
-            //         "cardPrdNm": "Shinhan Tmoney",
-            //         "cardPrdCrgNm": "Alliance Tmoney"
-            //     }
-            // ],
             transList: [],
         },
         computed: {
@@ -131,16 +112,43 @@
                     .then(function(response){
                         console.log('then response -> ');
                         console.log(response);
+                        self.cardList.push({ cardNo: self.newCardNo});
                     })
                     .catch(function(response) {
                         console.log('catch response -> ');
                         console.log(response);
+                        swal("Card register fail!", "...", "error");
                     })
                     ;
-                    this.cardList.push({ cardNo: self.newCardNo});
                 }
             },
-            gotoTransaction: function(cardNo) {
+            deleteCardNo: function (cardNo) {
+                console.log('delete card no -> ' + cardNo);
+                let self = this;
+
+                axios({
+                    method: 'delete',
+                    url: api.url + 'user/card',
+                    data: {
+                        cardNo: cardNo
+                    }
+                })
+                    .then(function(response){
+                        console.log('then response -> ');
+                        console.log(response);
+                        self.cardList = self.cardList.filter(function(item){
+                            return item.cardNo != cardNo;
+                        });
+                    })
+                    .catch(function(response) {
+                        console.log('catch response -> ');
+                        console.log(response);
+                        swal("Card delete fail!", "...", "error");
+                    })
+                ;
+            },
+            getTransaction: function(cardNo) {
+                let self = this;
                 axios({
                     method: 'get',
                     url: api.url + 'user/card/' + cardNo + '/trans',
@@ -150,19 +158,13 @@
                 .then(function(response){
                     console.log('then response -> ');
                     console.log(response);
+                    self.transList = response.data;
                 })
                 .catch(function(response) {
                     console.log('catch response -> ');
                     console.log(response);
                 })
                 ;
-                window.location = api.url + 'user/card/' + cardNo + '/trans';
-            },
-            modifyCardNo: function (cardNo) {
-
-            },
-            deleteCardNo: function (cardNo) {
-
             },
         },//methods
     });

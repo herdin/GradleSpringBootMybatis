@@ -1,8 +1,8 @@
 package com.harm.app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.harm.app.dto.model.TransModel;
 import com.harm.app.dto.request.EventRequest;
+import com.harm.app.dto.request.TransactionRequest;
 import com.harm.app.dto.request.UserReqeust;
 import com.harm.app.service.EventService;
 import com.harm.app.service.RemoteAPIService;
@@ -16,12 +16,9 @@ import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -129,7 +126,7 @@ public class SampleController {
 
     @GetMapping("/estest")
     public String estest() throws IOException {
-        estest_04();
+//        estest_04();
         estest_03();
         estest_02();
         return "estest";
@@ -184,7 +181,7 @@ public class SampleController {
          *      * @deprecated Types are in the process of being removed. Instead of using a type, prefer to
          *      * filter on a field on the document.
          */
-        searchRequest.types("trans");
+//        searchRequest.types("trans");
 
         QueryBuilder queryBuilder = QueryBuilders.matchQuery("card_no", "1010010030654487")
                 .lenient(false)
@@ -206,10 +203,10 @@ public class SampleController {
         logger.debug("status {}, took {} terminatedEarly {}, timeout {}", searchResponse.status(), searchResponse.getTook(), searchResponse.isTerminatedEarly(), searchResponse.isTimedOut());
 
         SearchHits hits = searchResponse.getHits();
-        ArrayList<TransModel> transModels = new ArrayList<>();
+        ArrayList<TransactionRequest> transModels = new ArrayList<>();
         for(SearchHit hit : hits) {
             String hitSource = hit.getSourceAsString();
-            TransModel transModel = objectMapper.readValue(hitSource, TransModel.class);
+            TransactionRequest transModel = objectMapper.readValue(hitSource, TransactionRequest.class);
             transModels.add(transModel);
             logger.debug("hit source -> {}", hitSource);
             logger.debug("hit -> {}", transModel);
@@ -223,11 +220,24 @@ public class SampleController {
     private void estest_03() throws IOException {
         logger.debug("estest_03 init");
         SearchRequest searchRequest = new SearchRequest("sjb");
-        QueryBuilder queryBuilder = QueryBuilders.matchQuery("card_no", "1010010030654487");
+        QueryBuilder queryBuilder = QueryBuilders.matchQuery("card_no", "1010010131588568");
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(queryBuilder);
         searchRequest.source(sourceBuilder);
         SearchResponse searchResponse = createConnection().search(searchRequest, RequestOptions.DEFAULT);
+
+        logger.debug("status {}, took {} terminatedEarly {}, timeout {}", searchResponse.status(), searchResponse.getTook(), searchResponse.isTerminatedEarly(), searchResponse.isTimedOut());
+
+        SearchHits hits = searchResponse.getHits();
+        ArrayList<TransactionRequest> transModels = new ArrayList<>();
+        for(SearchHit hit : hits) {
+            String hitSource = hit.getSourceAsString();
+            TransactionRequest transModel = objectMapper.readValue(hitSource, TransactionRequest.class);
+            transModels.add(transModel);
+            logger.debug("hit source -> {}", hitSource);
+            logger.debug("hit -> {}", transModel);
+        }
+
         logger.debug("estest-03 -> {}", searchResponse);
     }
     private void estest_02() throws IOException {

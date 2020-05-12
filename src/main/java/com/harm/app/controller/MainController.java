@@ -1,9 +1,8 @@
 package com.harm.app.controller;
 
-import com.harm.app.dto.model.TransModel;
 import com.harm.app.dto.request.CardRequest;
+import com.harm.app.dto.request.TransactionRequest;
 import com.harm.app.dto.request.UserReqeust;
-import com.harm.app.service.ElasticSearchService;
 import com.harm.app.service.RemoteAPIService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +16,10 @@ import java.util.List;
 public class MainController {
     private Logger logger = LoggerFactory.getLogger(MainController.class);
     private RemoteAPIService remoteAPIService;
-    private ElasticSearchService elasticSearchService;
     public MainController(
             RemoteAPIService remoteAPIService
-            , ElasticSearchService elasticSearchService) {
+    ) {
         this.remoteAPIService = remoteAPIService;
-        this.elasticSearchService = elasticSearchService;
     }
 
     @PostMapping("/login")
@@ -49,7 +46,18 @@ public class MainController {
     public ResponseEntity putUserCard(@SessionAttribute String userId, @RequestBody CardRequest cardRequest) {
         logger.debug("user {} attempt to put user card {}", userId, cardRequest);
         cardRequest.setUserId(userId);
-        if(remoteAPIService.putUserCard(cardRequest)) {
+        if(remoteAPIService.modUserCard(cardRequest, true)) {
+            return ResponseEntity.ok().body(null);
+        } else {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @DeleteMapping("/user/card")
+    public ResponseEntity deleteUserCard(@SessionAttribute String userId, @RequestBody CardRequest cardRequest) {
+        logger.debug("user {} attempt to delete user card {}", userId, cardRequest);
+        cardRequest.setUserId(userId);
+        if(remoteAPIService.modUserCard(cardRequest, false)) {
             return ResponseEntity.ok().body(null);
         } else {
             return ResponseEntity.badRequest().body(null);
@@ -57,8 +65,9 @@ public class MainController {
     }
 
     @GetMapping("/user/card/{cardNo}/trans")
-    public ResponseEntity<List<TransModel>> getTransactionListByUserCardNo(@PathVariable String cardNo) {
-        return null;
+    public ResponseEntity<List<TransactionRequest>> getTransactionListByUserCardNo(@PathVariable String cardNo) {
+        List<TransactionRequest> transList = remoteAPIService.getCardTransaction(cardNo);
+        return ResponseEntity.ok().body(transList);
     }
 
 }

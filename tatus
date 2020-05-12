@@ -1,0 +1,61 @@
+[1mdiff --git a/src/main/java/com/harm/app/controller/MainController.java b/src/main/java/com/harm/app/controller/MainController.java[m
+[1mindex 53f5857..cd46f21 100644[m
+[1m--- a/src/main/java/com/harm/app/controller/MainController.java[m
+[1m+++ b/src/main/java/com/harm/app/controller/MainController.java[m
+[36m@@ -1,9 +1,8 @@[m
+ package com.harm.app.controller;[m
+ [m
+[31m-import com.harm.app.dto.model.TransModel;[m
+ import com.harm.app.dto.request.CardRequest;[m
+[32m+[m[32mimport com.harm.app.dto.request.TransactionRequest;[m
+ import com.harm.app.dto.request.UserReqeust;[m
+[31m-import com.harm.app.service.ElasticSearchService;[m
+ import com.harm.app.service.RemoteAPIService;[m
+ import org.slf4j.Logger;[m
+ import org.slf4j.LoggerFactory;[m
+[36m@@ -17,12 +16,10 @@[m [mimport java.util.List;[m
+ public class MainController {[m
+     private Logger logger = LoggerFactory.getLogger(MainController.class);[m
+     private RemoteAPIService remoteAPIService;[m
+[31m-    private ElasticSearchService elasticSearchService;[m
+     public MainController([m
+             RemoteAPIService remoteAPIService[m
+[31m-            , ElasticSearchService elasticSearchService) {[m
+[32m+[m[32m    ) {[m
+         this.remoteAPIService = remoteAPIService;[m
+[31m-        this.elasticSearchService = elasticSearchService;[m
+     }[m
+ [m
+     @PostMapping("/login")[m
+[36m@@ -49,7 +46,18 @@[m [mpublic class MainController {[m
+     public ResponseEntity putUserCard(@SessionAttribute String userId, @RequestBody CardRequest cardRequest) {[m
+         logger.debug("user {} attempt to put user card {}", userId, cardRequest);[m
+         cardRequest.setUserId(userId);[m
+[31m-        if(remoteAPIService.putUserCard(cardRequest)) {[m
+[32m+[m[32m        if(remoteAPIService.modUserCard(cardRequest, true)) {[m
+[32m+[m[32m            return ResponseEntity.ok().body(null);[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            return ResponseEntity.badRequest().body(null);[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    @DeleteMapping("/user/card")[m
+[32m+[m[32m    public ResponseEntity deleteUserCard(@SessionAttribute String userId, @RequestBody CardRequest cardRequest) {[m
+[32m+[m[32m        logger.debug("user {} attempt to delete user card {}", userId, cardRequest);[m
+[32m+[m[32m        cardRequest.setUserId(userId);[m
+[32m+[m[32m        if(remoteAPIService.modUserCard(cardRequest, false)) {[m
+             return ResponseEntity.ok().body(null);[m
+         } else {[m
+             return ResponseEntity.badRequest().body(null);[m
+[36m@@ -57,8 +65,9 @@[m [mpublic class MainController {[m
+     }[m
+ [m
+     @GetMapping("/user/card/{cardNo}/trans")[m
+[31m-    public ResponseEntity<List<TransModel>> getTransactionListByUserCardNo(@PathVariable String cardNo) {[m
+[31m-        return null;[m
+[32m+[m[32m    public ResponseEntity<List<TransactionRequest>> getTransactionListByUserCardNo(@PathVariable String cardNo) {[m
+[32m+[m[32m        List<TransactionRequest> transList = remoteAPIService.getCardTransaction(cardNo);[m
+[32m+[m[32m        return ResponseEntity.ok().body(transList);[m
+     }[m
+ [m
+ }[m
