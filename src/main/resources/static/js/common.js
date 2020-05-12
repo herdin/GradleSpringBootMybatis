@@ -1,3 +1,3 @@
 const api = {
-    url: 'http://local.anmani.link:8090/'
+    url: 'http://msa.example.anmani.link:8090/'
 };
