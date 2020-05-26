@@ -73,7 +73,7 @@ public class SampleController {
     @CrossOrigin(origins = "*")
     @GetMapping("/hello")
     public String hello() throws UnknownHostException {
-        return "hello, " + InetAddress.getLocalHost().toString();
+        return "hello, " + InetAddress.getLocalHost().toString() + "2";
     }
 
     @GetMapping("/remoteHello")

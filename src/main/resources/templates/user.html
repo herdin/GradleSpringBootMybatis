@@ -10,7 +10,7 @@
 <body>
 <div id="app">
     <div class="container">
-        <div class="col-md-6 offset-md-3">
+        <div class="col-md-6 offset-md-3 small">
             <h1 class="text-center mb-4">User Card Management.</h1>
             <input type="text" class="form-control mb-4" v-model="newCardNo" @keyup.enter="addNewCard"/>
             <div class="list-group mb-4">
@@ -149,6 +149,7 @@
             },
             getTransaction: function(cardNo) {
                 let self = this;
+                self.transList = [];
                 axios({
                     method: 'get',
                     url: api.url + 'user/card/' + cardNo + '/trans',

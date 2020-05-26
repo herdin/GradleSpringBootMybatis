@@ -9,6 +9,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 
 import java.net.InetAddress;
@@ -24,6 +25,7 @@ TODO
 public class ElasticsearchConfiguration {
 
     @Bean
+    @Lazy
     public RestHighLevelClient restHighLevelClient(Environment environment) {
 
         String url = environment.getProperty(VaultEnvironmentPostProcessor.PROPERTY_KEY.ELASTICSEARCH_URL.value());

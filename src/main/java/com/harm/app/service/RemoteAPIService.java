@@ -20,6 +20,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
+import org.springframework.remoting.RemoteAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -32,6 +33,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class RemoteAPIService {
@@ -111,6 +114,7 @@ public class RemoteAPIService {
             }
         } catch (RestClientException e) {
             logger.error(e.getMessage());
+            throw new RemoteAccessException(e.getMessage());
         }
         return isLogined;
     }
@@ -167,8 +171,10 @@ public class RemoteAPIService {
             }
         } catch(RestClientException re) {
             logger.error(re.getMessage());
+            throw new RemoteAccessException(re.getMessage());
         } catch (JsonProcessingException je) {
             logger.error(je.getMessage());
+            throw new RemoteAccessException(je.getMessage());
         }
         return userCardList;
     }
@@ -212,6 +218,7 @@ public class RemoteAPIService {
             }
         } catch (RestClientException e) {
             logger.error(e.getMessage());
+            throw new RemoteAccessException(e.getMessage());
         }
         return isModOk;
     }
@@ -242,7 +249,8 @@ public class RemoteAPIService {
             searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
             logger.error(e.getMessage());
-            return transModels;
+            throw new RemoteAccessException(e.getMessage());
+//            return transModels;
         }
 
         logger.debug("status {}, took {} terminatedEarly {}, timeout {}", searchResponse.status(), searchResponse.getTook(), searchResponse.isTerminatedEarly(), searchResponse.isTimedOut());
@@ -255,7 +263,8 @@ public class RemoteAPIService {
                 transModel = objectMapper.readValue(hitSource, TransactionRequest.class);
             } catch (JsonProcessingException e) {
                 logger.error(e.getMessage());
-                return transModels;
+                throw new RemoteAccessException(e.getMessage());
+//                return transModels;
             }
             transModels.add(transModel);
             logger.debug("hit source -> {}", hitSource);
@@ -266,6 +275,14 @@ public class RemoteAPIService {
     }
     public List<TransactionRequest> getCardTransactionFallback(String cardNo) {
         logger.debug("fallback called.");
-        return Arrays.asList(new TransactionRequest[]{});
+        List<TransactionRequest> duumyList = IntStream.range(0, 20).mapToObj(i -> new TransactionRequest(
+                "dummy-card-no-" + i,
+                "dummy-tr-dtime-" + i,
+                "dummy-vehc-id-" + i,
+                "dummy-route-id-" + i,
+                "dummy-tr-amt-" + i,
+                "dummy-tr-type-" + i
+                )).collect(Collectors.toList());
+        return duumyList;
     }
 }

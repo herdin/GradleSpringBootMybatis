@@ -7,12 +7,13 @@ import com.harm.app.service.RemoteAPIService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
-@RestController
+@Controller
 public class MainController {
     private Logger logger = LoggerFactory.getLogger(MainController.class);
     private RemoteAPIService remoteAPIService;
@@ -22,7 +23,13 @@ public class MainController {
         this.remoteAPIService = remoteAPIService;
     }
 
+    @ExceptionHandler(IllegalAccessError.class)
+    public String errorHandle() {
+        return "/";
+    }
+
     @PostMapping("/login")
+    @ResponseBody
     public ResponseEntity login(@RequestBody UserReqeust userReqeust, HttpSession httpSession) {
         logger.debug("user {} attempt to login", userReqeust.getUserId());
         ResponseEntity responseEntity = ResponseEntity.badRequest().body(null);
@@ -35,6 +42,7 @@ public class MainController {
     }
 
     @GetMapping("/user/card")
+    @ResponseBody
     public ResponseEntity<List<CardRequest>> getUserCard(@SessionAttribute String userId) {
         logger.debug("user {} attempt to get user card", userId);
         List<CardRequest> userCardList = remoteAPIService.getUserCard(userId);
@@ -43,6 +51,7 @@ public class MainController {
     }
 
     @PutMapping("/user/card")
+    @ResponseBody
     public ResponseEntity putUserCard(@SessionAttribute String userId, @RequestBody CardRequest cardRequest) {
         logger.debug("user {} attempt to put user card {}", userId, cardRequest);
         cardRequest.setUserId(userId);
@@ -54,6 +63,7 @@ public class MainController {
     }
 
     @DeleteMapping("/user/card")
+    @ResponseBody
     public ResponseEntity deleteUserCard(@SessionAttribute String userId, @RequestBody CardRequest cardRequest) {
         logger.debug("user {} attempt to delete user card {}", userId, cardRequest);
         cardRequest.setUserId(userId);
@@ -65,6 +75,7 @@ public class MainController {
     }
 
     @GetMapping("/user/card/{cardNo}/trans")
+    @ResponseBody
     public ResponseEntity<List<TransactionRequest>> getTransactionListByUserCardNo(@PathVariable String cardNo) {
         List<TransactionRequest> transList = remoteAPIService.getCardTransaction(cardNo);
         return ResponseEntity.ok().body(transList);
