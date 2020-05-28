@@ -10,7 +10,7 @@
 <body>
 <div id="app">
     <div class="container">
-        <div class="col-md-6 offset-md-3 small">
+        <div class="small" backup-class="col-md-6 offset-md-3">
             <h1 class="text-center mb-4">User Card Management.</h1>
             <input type="text" class="form-control mb-4" v-model="newCardNo" @keyup.enter="addNewCard"/>
             <div class="list-group mb-4">
@@ -26,7 +26,7 @@
                     </div>
                 </template>
             </div>
-            <table class="mx-auto pure-table">
+            <table class="pure-table" backup-class="mx-auto">
                 <thead>
                     <tr>
                         <td>카드번호</td>
