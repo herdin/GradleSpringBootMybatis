@@ -74,7 +74,7 @@ public class SampleController {
     @CrossOrigin
     @GetMapping("/hello")
     public String hello() throws UnknownHostException {
-        return "hello, v3.3 msa-example, from " + InetAddress.getLocalHost().toString();
+        return "hello, v3.4 msa-example, from " + InetAddress.getLocalHost().toString();
     }
 
     @GetMapping("/remoteHello")
