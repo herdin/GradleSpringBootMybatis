@@ -70,7 +70,8 @@ public class SampleController {
 //        return ResponseEntity.badRequest().body(e.getMessage());
 //    }
 
-    @CrossOrigin(origins = "*")
+//    @CrossOrigin(origins = "*")
+    @CrossOrigin
     @GetMapping("/hello")
     public String hello() throws UnknownHostException {
         return "hello, v3.3 msa-example, from " + InetAddress.getLocalHost().toString();
