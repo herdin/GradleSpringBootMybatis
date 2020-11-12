@@ -1,4 +1,4 @@
-# GradleSpringBootMybatis
+# msa-prototype-front
 
 `EXAMPLE` SERVICE BUILD = ![msa.example](https://codebuild.ap-northeast-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiYXNBekdCZ2hRMFpjN2czdmRYcjRBeUJKU1Jhb256UHNHY3JHanI0NmN0aVhULzVmd2E5WXJxYmNmNlRBZ0RtZWU0UDFvR3RiSXhrZzRQUnRSRFhRbTFvPSIsIml2UGFyYW1ldGVyU3BlYyI6Ink0SzhZN1NOR3FzTHVBaUMiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
